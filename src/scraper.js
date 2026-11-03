@@ -68,7 +68,7 @@ const filter = page.locator("button, [role='button']")
   .first();
 
 if (await filter.count()) {
-  await filter.click({ timeout: 15000 });
+  await filter.click({ force: true, timeout: 15000 });
   await page.waitForTimeout(5000);
 } else {
   const buttons = await page.locator("button, [role='button']")
