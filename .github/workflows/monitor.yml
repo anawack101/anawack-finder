@@ -1,0 +1,49 @@
+
+name: Anawack Xbox Account Monitor
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get repository files
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Restore account history
+        uses: actions/cache/restore@v4
+        with:
+          path: data/state.json
+          key: anawack-state-${{ github.run_id }}
+          restore-keys: |
+            anawack-state-
+
+      - name: Check for new accounts
+        run: node src/check-once.js
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      - name: Save account history
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: data/state.json
+          key: anawack-state-${{ github.run_id }}
