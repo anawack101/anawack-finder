@@ -57,11 +57,25 @@ async function scrapeXboxSeries() {
     await page.goto(SOURCE_URL, { waitUntil: "domcontentloaded", timeout: 60000 });
     await page.waitForTimeout(2500);
 
-  await page.waitForFunction(
-  () => [...document.querySelectorAll("button, [role='button']")]
-    .some(el => /Xbox Series/i.test(el.innerText || "")),
-  { timeout: 20000 }
-).catch(() => {});
+const filter = page.locator('[data-filter="Xbox Series"]:visible').first();
+
+try {
+  await filter.waitFor({ state: "visible", timeout: 20000 });
+  await filter.click({ timeout: 10000 });
+  await page.waitForTimeout(5000);
+} catch (error) {
+  const details = await page.locator('[data-filter="Xbox Series"]')
+    .evaluateAll(elements => elements.map(el => ({
+      visible: !!(el.offsetWidth || el.offsetHeight),
+      text: el.innerText,
+      className: el.className
+    })));
+
+  throw new Error(
+    "Could not activate visible Xbox Series filter: " +
+    JSON.stringify(details)
+  );
+}
 
 const filter = page.locator('[data-filter="Xbox Series"]').first();
 
