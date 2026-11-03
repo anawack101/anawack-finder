@@ -63,12 +63,12 @@ async function scrapeXboxSeries() {
   { timeout: 20000 }
 ).catch(() => {});
 
-const filter = page.locator("button, [role='button']")
-  .filter({ hasText: /Xbox Series/i })
-  .first();
+const filter = page.locator('[data-filter="Xbox Series"]').first();
 
 if (await filter.count()) {
-  await filter.click({ force: true, timeout: 15000 });
+  await filter.evaluate(el => {
+    el.click();
+  });
   await page.waitForTimeout(5000);
 } else {
   const buttons = await page.locator("button, [role='button']")
