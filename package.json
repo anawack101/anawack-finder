@@ -1,0 +1,19 @@
+{
+  "name": "anawack-xbox-series-alerts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Discord alerts for newly listed Xbox Series X|S GTA AFK accounts on GTA Glitches",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "register": "node src/register-commands.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "discord.js": "^14.21.0",
+    "dotenv": "^16.4.7",
+    "playwright": "^1.52.0"
+  }
+}
