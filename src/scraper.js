@@ -57,14 +57,27 @@ async function scrapeXboxSeries() {
     await page.goto(SOURCE_URL, { waitUntil: "domcontentloaded", timeout: 60000 });
     await page.waitForTimeout(2500);
 
-    const filter = page.getByRole("button", { name: /Xbox Series/i }).first();
-    if (await filter.count()) {
-      await filter.click({ timeout: 10000 }).catch(() => {});
-      await page.waitForTimeout(2500);
-    } else {
-      throw new Error('Could not find the "Xbox Series" filter button on the source page.');
-    }
+  await page.waitForFunction(
+  () => [...document.querySelectorAll("button, [role='button']")]
+    .some(el => /Xbox Series/i.test(el.innerText || "")),
+  { timeout: 20000 }
+).catch(() => {});
 
+const filter = page.locator("button, [role='button']")
+  .filter({ hasText: /Xbox Series/i })
+  .first();
+
+if (await filter.count()) {
+  await filter.click({ timeout: 15000 });
+  await page.waitForTimeout(5000);
+} else {
+  const buttons = await page.locator("button, [role='button']")
+    .allInnerTexts();
+  throw new Error(
+    "Xbox Series filter not found. Buttons detected: " +
+    JSON.stringify(buttons)
+  );
+}
     const result = await page.locator(CARD_SELECTOR).evaluateAll(elements => {
       const visible = elements.filter(el => {
         const r = el.getBoundingClientRect();
